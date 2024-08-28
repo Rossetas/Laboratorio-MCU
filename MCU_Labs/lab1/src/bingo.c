@@ -11,16 +11,16 @@ typedef unsigned int word;
 word __at 0x2007 __CONFIG = (_WDT_OFF & _MCLRE_OFF); // configuracion registro CONFIG
 
 #define button GP3
-#define EN GP5
+#define EN_display GP5
 #define DELAY 1275
 
 /* prototipo de funciones */
 
 void bingo ();
-int random_displayA ();
-int random_displayB ();
-void delay (unsigned int tiempo);
-void display_value ();
+int random_displayA (unsigned int);
+int random_displayB (unsigned int);
+void delay (unsigned int);
+void display_value (unsigned int, unsigned int);
 
 /*****************************/
 /*****************************/
@@ -36,17 +36,17 @@ void bingo(){
 
 	/* registers */
 	TRISIO = 0x08;		// pin3 as input
-	//GPIO = 0x00;		// pines en bajo
-	GPIO = 0x06;		// pines en bajo, P5 = alto, P5 = EN
+	GPIO = 0x00;		// pines en bajo
+	//GPIO = 0x06;		// pines en bajo, P5 = alto, P5 = EN
 	//CMCON no se modifica ya que GP0, GP1 y GP2 son outputs
 	ANSEL = 0x00;
 	
 	/* variables */
-	unsigned int tiempo;
-	unsigned int random_x = 2;
-	unsigned int random_y = 8;
-	unsigned int display_A = 0xF;
-	unsigned int display_B = 0xF;
+	unsigned int tiempo = 0;
+	unsigned int random_x = 2; //  
+	unsigned int random_y = 8; //   
+	unsigned int display_A = 0x; // value display A
+	unsigned int display_B = 0x; // value display B
 	unsigned int times = 0; // contador del numero de veces que sale un numero (bola)
 	unsigned int blink = 0; // contador interno para llevar los blinks
 	
@@ -63,6 +63,8 @@ void bingo(){
 				
 			else if (times == 11){ // condicion de reset in game
 				
+				times = 0; // reset times
+				
 				}
 		
 		}
@@ -70,12 +72,12 @@ void bingo(){
 }
 
 /* generacion de numeros aleatorios */
-int random_displayA (){
+int random_displayA (unsigned int random_x){
 	
 	return 0; // check
 }
 
-int random_displayB (){
+int random_displayB (unsigned int random_y){
 	
 	return 0; // check
 }
@@ -90,7 +92,9 @@ void delay (unsigned int tiempo){
 		for(j=0; j<=DELAY; j++);
 }
 
-void display_value (){
+void display_value (unsigned int value, unsigned int display){
+	
+	EN_display = display;
 	
 	if (value == 0){
 		
@@ -183,15 +187,19 @@ void display_value (){
 		}
 	
 	// adicionales
-	// case display off	
+	
+	// case default
 	else if (value == 10){
 		
-		EN = 0;
+		GP0 = 0;
+		GP1 = 1;
+		GP2 = 0;
+		GP4 = 1;
 		
 		}
 	
-	// case default	
-	else if (value == 0xF){
+	// case display off (NAND + inv)	
+	else if (value == 15){
 		
 		GP0 = 1;
 		GP1 = 1;
